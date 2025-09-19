@@ -750,12 +750,20 @@ p {
   color: #166534;
 }
 
+.text-yellow-800 {
+  color: #92400e;
+}
+
 .bg-blue-50 {
   background-color: #eff6ff;
 }
 
 .bg-green-50 {
   background-color: #f0fdf4;
+}
+
+.bg-yellow-50 {
+  background-color: #fefce8;
 }
 
 /* Grid Enhancements */

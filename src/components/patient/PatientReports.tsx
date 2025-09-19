@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
+import { useApp } from '../../contexts/AppContext';
 import { dummyReports } from '../../data/dummyData';
 import ProgressChart from '../charts/ProgressChart';
 import SessionsChart from '../charts/SessionsChart';
 import { generateProgressData, generateSessionsData, generateRatingsData } from '../../data/chartData';
 
-interface PatientReportsProps {
-  user: any;
-}
-
-const PatientReports: React.FC<PatientReportsProps> = ({ user }) => {
+const PatientReports: React.FC = () => {
+  const { user } = useApp();
   const [activeReportsTab, setActiveReportsTab] = useState('progress');
+
+  if (!user) return null;
 
   const patientReports = dummyReports.filter(r => r.patientId === user.profile.id);
   const progressData = generateProgressData(user.profile.id);

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
+import { useApp } from '../../contexts/AppContext';
 import { dummyFeedback } from '../../data/dummyData';
 
-interface PatientFeedbackProps {
-  user: any;
-}
-
-const PatientFeedback: React.FC<PatientFeedbackProps> = ({ user }) => {
+const PatientFeedback: React.FC = () => {
+  const { user } = useApp();
   const [symptoms, setSymptoms] = useState('');
   const [improvements, setImprovements] = useState('');
   const [sideEffects, setSideEffects] = useState('');
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!user) return null;
 
   const patientFeedback = dummyFeedback.filter(f => f.patientId === user.profile.id);
 

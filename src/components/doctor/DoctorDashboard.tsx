@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '../../contexts/AppContext';
 import { dummyUsers, dummyFeedback, dummyReports } from '../../data/dummyData';
 import PatientOverview from '../patient/PatientOverview';
 import PatientSchedule from '../patient/PatientSchedule';
@@ -7,11 +8,9 @@ import PatientReports from '../patient/PatientReports';
 import ProgressChart from '../charts/ProgressChart';
 import { generateProgressData } from '../../data/chartData';
 
-interface DoctorDashboardProps {
-  user: any;
-}
-
-const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user }) => {
+const DoctorDashboard: React.FC = () => {
+  const { user } = useApp();
+  
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -150,8 +149,8 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user }) => {
                 </div>
                 
                 <div className="tab-content active">
-                  {activeTab === 'overview' && <PatientOverview user={selectedPatient} />}
-                  {activeTab === 'schedule' && <PatientSchedule user={selectedPatient} />}
+                  {activeTab === 'overview' && <PatientOverview />}
+                  {activeTab === 'schedule' && <PatientSchedule />}
                   {activeTab === 'feedback' && (
                     <div className="fade-in">
                       <div className="card">
@@ -173,7 +172,7 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user }) => {
                       </div>
                     </div>
                   )}
-                  {activeTab === 'reports' && <PatientReports user={selectedPatient} />}
+                  {activeTab === 'reports' && <PatientReports />}
                 </div>
               </div>
             </>

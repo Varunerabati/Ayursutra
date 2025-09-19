@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
+import { useApp } from '../../contexts/AppContext';
 import { availableDates, getAvailableSlots, timeSlots } from '../../data/dummyData';
 
-interface PatientScheduleProps {
-  user: any;
-}
-
-const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
+const PatientSchedule: React.FC = () => {
+  const { user, upcomingSession, updateUpcomingSession } = useApp();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isRescheduling, setIsRescheduling] = useState(false);
+
+  if (!user) return null;
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -21,13 +22,31 @@ const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
 
   const handleConfirmBooking = () => {
     setShowConfirmation(true);
-    // In a real app, this would update the backend
+    
+    const newSession = {
+      date: selectedDate,
+      time: selectedTime,
+      practitioner: getAssignedPractitioner(),
+      type: getNextTreatmentType()
+    };
+    
     setTimeout(() => {
+      // Update the context with new session
+      updateUpcomingSession(newSession);
       setShowConfirmation(false);
       setSelectedDate('');
       setSelectedTime('');
-      alert('Appointment booked successfully! You will receive a confirmation email shortly.');
+      setIsRescheduling(false);
+      
+      const action = isRescheduling ? 'rescheduled' : 'booked';
+      alert(`Appointment ${action} successfully! You will receive a confirmation email shortly. Check the Overview tab to see your updated session.`);
     }, 2000);
+  };
+  
+  const handleReschedule = () => {
+    setIsRescheduling(true);
+    setSelectedDate('');
+    setSelectedTime('');
   };
 
   const getDaysInMonth = () => {
@@ -70,9 +89,55 @@ const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
 
   const availableSlots = selectedDate ? getAvailableSlots(selectedDate) : [];
   const bookedSlots = selectedDate ? timeSlots.filter(slot => !availableSlots.includes(slot)) : [];
+  
+  // Get current upcoming session (from context or profile)
+  const currentSession = upcomingSession || user.profile.upcomingSession;
 
   return (
     <div className="fade-in">
+      {/* Current Session Info */}
+      {currentSession && !isRescheduling && (
+        <div className="card mb-3">
+          <div className="card-header">
+            <h3 className="card-title">Current Upcoming Session</h3>
+            <button 
+              onClick={handleReschedule}
+              className="btn btn-secondary btn-small"
+            >
+              Reschedule Session
+            </button>
+          </div>
+          <div className="grid grid-2">
+            <div>
+              <p><strong>Date:</strong> {new Date(currentSession.date).toLocaleDateString()}</p>
+              <p><strong>Time:</strong> {currentSession.time}</p>
+            </div>
+            <div>
+              <p><strong>Practitioner:</strong> {currentSession.practitioner}</p>
+              <p><strong>Treatment:</strong> {currentSession.type}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Show scheduling interface when rescheduling or no current session */}
+      {(isRescheduling || !currentSession) && (
+        <>
+          {isRescheduling && (
+            <div className="card mb-3">
+              <div className="card-header">
+                <h3 className="card-title">Reschedule Your Session</h3>
+                <button 
+                  onClick={() => setIsRescheduling(false)}
+                  className="btn btn-secondary btn-small"
+                >
+                  Cancel Reschedule
+                </button>
+              </div>
+              <p>Select a new date and time for your session. Your current appointment will be replaced.</p>
+            </div>
+          )}
+          
       <div className="grid grid-2">
         <div className="card">
           <div className="card-header">
@@ -163,8 +228,39 @@ const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
               className="btn btn-primary mt-2"
               disabled={showConfirmation}
             >
-              {showConfirmation ? 'Booking...' : 'Confirm Booking'}
+              {showConfirmation 
+                ? (isRescheduling ? 'Rescheduling...' : 'Booking...') 
+                : (isRescheduling ? 'Confirm Reschedule' : 'Confirm Booking')
+              }
             </button>
+          </div>
+        </div>
+      )}
+        </>
+      )}
+      
+      {/* Show message when session exists and not rescheduling */}
+      {currentSession && !isRescheduling && (
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Session Management</h3>
+          </div>
+          <div className="text-center">
+            <p className="mb-3">You have an upcoming session scheduled. Use the "Reschedule Session" button above to change your appointment time.</p>
+            <div className="grid grid-3">
+              <div className="info-card">
+                <h3>{new Date(currentSession.date).getDate()}</h3>
+                <p>{new Date(currentSession.date).toLocaleDateString('en-US', { month: 'short' })}</p>
+              </div>
+              <div className="info-card">
+                <h3>{currentSession.time}</h3>
+                <p>Scheduled Time</p>
+              </div>
+              <div className="info-card">
+                <h3>{currentSession.type}</h3>
+                <p>Treatment Type</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

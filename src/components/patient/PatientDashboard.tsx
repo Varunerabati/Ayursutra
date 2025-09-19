@@ -4,11 +4,7 @@ import PatientSchedule from './PatientSchedule';
 import PatientFeedback from './PatientFeedback';
 import PatientReports from './PatientReports';
 
-interface PatientDashboardProps {
-  user: any;
-}
-
-const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
+const PatientDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const tabs = [
@@ -38,10 +34,10 @@ const PatientDashboard: React.FC<PatientDashboardProps> = ({ user }) => {
             </div>
             
             <div className="tab-content active">
-              {activeTab === 'overview' && <PatientOverview user={user} />}
-              {activeTab === 'schedule' && <PatientSchedule user={user} />}
-              {activeTab === 'feedback' && <PatientFeedback user={user} />}
-              {activeTab === 'reports' && <PatientReports user={user} />}
+              {activeTab === 'overview' && <PatientOverview />}
+              {activeTab === 'schedule' && <PatientSchedule />}
+              {activeTab === 'feedback' && <PatientFeedback />}
+              {activeTab === 'reports' && <PatientReports />}
             </div>
           </div>
         </div>

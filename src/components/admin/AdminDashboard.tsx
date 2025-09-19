@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import CreateAccounts from './CreateAccounts';
 import UploadReports from './UploadReports';
 
-interface AdminDashboardProps {
-  user: any;
-}
-
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
+const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('accounts');
 
   const tabs = [
