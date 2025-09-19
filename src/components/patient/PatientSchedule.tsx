@@ -26,7 +26,7 @@ const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
       setShowConfirmation(false);
       setSelectedDate('');
       setSelectedTime('');
-      alert('Appointment booked successfully!');
+      alert('Appointment booked successfully! You will receive a confirmation email shortly.');
     }, 2000);
   };
 
@@ -58,6 +58,15 @@ const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
     
     return days;
   };
+
+  function getNextTreatmentType() {
+    const treatments = ['Abhyanga', 'Swedana', 'Shirodhara', 'Nasya', 'Basti'];
+    return treatments[user.profile.completedSessions % treatments.length];
+  }
+
+  function getAssignedPractitioner() {
+    return user.profile.upcomingSession.practitioner;
+  }
 
   const availableSlots = selectedDate ? getAvailableSlots(selectedDate) : [];
   const bookedSlots = selectedDate ? timeSlots.filter(slot => !availableSlots.includes(slot)) : [];
@@ -146,7 +155,9 @@ const PatientSchedule: React.FC<PatientScheduleProps> = ({ user }) => {
           <div>
             <p><strong>Date:</strong> {new Date(selectedDate).toLocaleDateString()}</p>
             <p><strong>Time:</strong> {selectedTime}</p>
-            <p><strong>Treatment:</strong> Next session in therapy sequence</p>
+            <p><strong>Treatment:</strong> {getNextTreatmentType()}</p>
+            <p><strong>Duration:</strong> 60-90 minutes</p>
+            <p><strong>Practitioner:</strong> {getAssignedPractitioner()}</p>
             <button 
               onClick={handleConfirmBooking}
               className="btn btn-primary mt-2"

@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { dummyReports } from '../../data/dummyData';
+import ProgressChart from '../charts/ProgressChart';
+import SessionsChart from '../charts/SessionsChart';
+import { generateProgressData, generateSessionsData, generateRatingsData } from '../../data/chartData';
 
 interface PatientReportsProps {
   user: any;
@@ -9,14 +12,9 @@ const PatientReports: React.FC<PatientReportsProps> = ({ user }) => {
   const [activeReportsTab, setActiveReportsTab] = useState('progress');
 
   const patientReports = dummyReports.filter(r => r.patientId === user.profile.id);
-
-  const progressData = [
-    { date: '2025-01-01', progress: 20 },
-    { date: '2025-01-03', progress: 25 },
-    { date: '2025-01-05', progress: 35 },
-    { date: '2025-01-08', progress: 42 },
-    { date: '2025-01-10', progress: 57 }
-  ];
+  const progressData = generateProgressData(user.profile.id);
+  const sessionsData = generateSessionsData(user.profile.id);
+  const ratingsData = generateRatingsData(user.profile.id);
 
   const reportsTab = [
     { id: 'progress', label: 'Progress' },
@@ -54,21 +52,29 @@ const PatientReports: React.FC<PatientReportsProps> = ({ user }) => {
               <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">Progress Chart</h3>
+                  <div className="flex gap-2">
+                    <button className="btn btn-secondary btn-small">Area Chart</button>
+                    <button className="btn btn-secondary btn-small">Line Chart</button>
+                  </div>
                 </div>
-                <div className="chart-placeholder">
-                  Progress Chart Visualization (Would show actual chart with real data)
-                </div>
+                <ProgressChart data={progressData} type="area" height={350} />
               </div>
               
               <div className="card">
                 <div className="card-header">
-                  <h3 className="card-title">Progress Timeline</h3>
+                  <h3 className="card-title">Detailed Progress Timeline</h3>
                 </div>
                 <div>
-                  {progressData.map((item, index) => (
-                    <div key={index} className="flex justify-between align-center" style={{ padding: '0.5rem 0', borderBottom: '1px solid #f5f5f5' }}>
-                      <span>{new Date(item.date).toLocaleDateString()}</span>
-                      <span>{item.progress}% Complete</span>
+                  {progressData.slice(-5).map((item, index) => (
+                    <div key={index} className="flex justify-between align-center" style={{ padding: '1rem 0', borderBottom: '1px solid #f5f5f5' }}>
+                      <div>
+                        <div className="font-medium">{new Date(item.date).toLocaleDateString()}</div>
+                        <div className="text-sm text-gray-500">Session {item.sessions}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium text-green-600">{item.progress}% Complete</div>
+                        <div className="text-sm text-gray-500">Rating: {item.rating}/5</div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -77,34 +83,85 @@ const PatientReports: React.FC<PatientReportsProps> = ({ user }) => {
           )}
           
           {activeReportsTab === 'sessions' && (
-            <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Session Statistics</h3>
+            <div>
+              <div className="grid grid-2">
+                <div className="card">
+                  <div className="card-header">
+                    <h3 className="card-title">Session Types Distribution</h3>
+                  </div>
+                  <SessionsChart data={sessionsData} type="bar" height={300} />
+                </div>
+                
+                <div className="card">
+                  <div className="card-header">
+                    <h3 className="card-title">Session Types Breakdown</h3>
+                  </div>
+                  <SessionsChart data={sessionsData} type="pie" height={300} />
+                </div>
               </div>
-              <div className="grid grid-3">
-                <div className="info-card">
-                  <h3>{user.profile.completedSessions}</h3>
-                  <p>Completed Sessions</p>
+              
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">Session Statistics</h3>
                 </div>
-                <div className="info-card">
-                  <h3>{user.profile.totalSessions - user.profile.completedSessions}</h3>
-                  <p>Remaining Sessions</p>
-                </div>
-                <div className="info-card">
-                  <h3>{user.profile.progress}%</h3>
-                  <p>Overall Progress</p>
+                <div className="grid grid-4">
+                  <div className="info-card">
+                    <h3>{user.profile.completedSessions}</h3>
+                    <p>Completed Sessions</p>
+                  </div>
+                  <div className="info-card">
+                    <h3>{user.profile.totalSessions - user.profile.completedSessions}</h3>
+                    <p>Remaining Sessions</p>
+                  </div>
+                  <div className="info-card">
+                    <h3>{user.profile.progress}%</h3>
+                    <p>Overall Progress</p>
+                  </div>
+                  <div className="info-card">
+                    <h3>{Math.round((user.profile.completedSessions / user.profile.totalSessions) * 100)}%</h3>
+                    <p>Completion Rate</p>
+                  </div>
                 </div>
               </div>
             </div>
           )}
           
           {activeReportsTab === 'ratings' && (
-            <div className="card">
-              <div className="card-header">
-                <h3 className="card-title">Treatment Ratings</h3>
+            <div>
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">Treatment Ratings Over Time</h3>
+                </div>
+                <ProgressChart 
+                  data={ratingsData.map(r => ({ 
+                    date: r.date, 
+                    progress: r.rating * 20, 
+                    sessions: r.energy * 10,
+                    rating: r.rating 
+                  }))} 
+                  type="line" 
+                  height={300} 
+                />
               </div>
-              <div className="chart-placeholder">
-                Rating Trends Chart (Would show actual ratings over time)
+              
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">Rating Summary</h3>
+                </div>
+                <div className="grid grid-3">
+                  <div className="info-card">
+                    <h3>{(ratingsData.reduce((sum, r) => sum + r.rating, 0) / ratingsData.length).toFixed(1)}</h3>
+                    <p>Average Rating</p>
+                  </div>
+                  <div className="info-card">
+                    <h3>{Math.max(...ratingsData.map(r => r.rating))}</h3>
+                    <p>Highest Rating</p>
+                  </div>
+                  <div className="info-card">
+                    <h3>{(ratingsData.reduce((sum, r) => sum + r.energy, 0) / ratingsData.length).toFixed(1)}</h3>
+                    <p>Average Energy Level</p>
+                  </div>
+                </div>
               </div>
             </div>
           )}

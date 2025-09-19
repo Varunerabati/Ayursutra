@@ -4,6 +4,8 @@ import PatientOverview from '../patient/PatientOverview';
 import PatientSchedule from '../patient/PatientSchedule';
 import PatientFeedback from '../patient/PatientFeedback';
 import PatientReports from '../patient/PatientReports';
+import ProgressChart from '../charts/ProgressChart';
+import { generateProgressData } from '../../data/chartData';
 
 interface DoctorDashboardProps {
   user: any;
@@ -18,6 +20,7 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user }) => {
   const activeCases = patients.filter(p => p.profile.completedSessions < p.profile.totalSessions).length;
   const averageProgress = Math.round(patients.reduce((sum, p) => sum + p.profile.progress, 0) / patients.length);
   const todaySessions = 3; // Dummy data
+  const completedCases = patients.filter(p => p.profile.completedSessions >= p.profile.totalSessions).length;
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -51,11 +54,30 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user }) => {
                   <h3>{todaySessions}</h3>
                   <p>Today&apos;s Sessions</p>
                 </div>
+                <div className="info-card">
+                  <h3>{completedCases}</h3>
+                  <p>Completed Cases</p>
+                </div>
+              </div>
+              
+              <div className="card">
+                <div className="card-header">
+                  <h3 className="card-title">Overall Patient Progress</h3>
+                </div>
+                <ProgressChart 
+                  data={generateProgressData('overall')} 
+                  type="line" 
+                  height={250} 
+                />
               </div>
               
               <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">Patient Management</h3>
+                  <div className="flex gap-2">
+                    <button className="btn btn-secondary btn-small">Export Data</button>
+                    <button className="btn btn-primary btn-small">Add Patient</button>
+                  </div>
                 </div>
                 <table className="table">
                   <thead>
@@ -93,7 +115,7 @@ const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ user }) => {
                             onClick={() => setSelectedPatient(patient)}
                             className="btn btn-primary btn-small"
                           >
-                            View Patient Results
+                            View Details
                           </button>
                         </td>
                       </tr>

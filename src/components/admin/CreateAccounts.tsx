@@ -27,7 +27,7 @@ const CreateAccounts: React.FC = () => {
     
     // Simulate API call
     setTimeout(() => {
-      alert(`${accountType} account created successfully!`);
+      alert(`${accountType.charAt(0).toUpperCase() + accountType.slice(1)} account created successfully! Login credentials have been sent via email.`);
       setFormData({
         name: '',
         username: '',
@@ -192,6 +192,8 @@ const CreateAccounts: React.FC = () => {
               <li>Personal details (name, age)</li>
               <li>Login credentials (username, password)</li>
               <li>Therapy type and session count</li>
+              <li>Medical history and allergies</li>
+              <li>Emergency contact information</li>
             </ul>
             
             <h4>Doctor Accounts</h4>
@@ -200,7 +202,14 @@ const CreateAccounts: React.FC = () => {
               <li>Personal details (name)</li>
               <li>Login credentials (username, password)</li>
               <li>Professional details (specialization, experience)</li>
+              <li>License and certification information</li>
+              <li>Available working hours and schedule</li>
             </ul>
+            
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <h4 className="text-blue-800">Security Note</h4>
+              <p className="text-blue-700 text-sm">All passwords are encrypted and stored securely. Users will be prompted to change their password on first login.</p>
+            </div>
           </div>
         </div>
       </div>

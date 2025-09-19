@@ -1,4 +1,6 @@
 import React from 'react';
+import ProgressChart from '../charts/ProgressChart';
+import { generateProgressData } from '../../data/chartData';
 
 interface PatientOverviewProps {
   user: any;
@@ -6,6 +8,8 @@ interface PatientOverviewProps {
 
 const PatientOverview: React.FC<PatientOverviewProps> = ({ user }) => {
   const { profile } = user;
+  const progressData = generateProgressData(profile.id);
+  const recentProgress = progressData.slice(-7); // Last 7 data points
   
   return (
     <div className="fade-in">
@@ -37,6 +41,13 @@ const PatientOverview: React.FC<PatientOverviewProps> = ({ user }) => {
             <p className="mt-1">{profile.progress}% Complete</p>
           </div>
         </div>
+      </div>
+      
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">Recent Progress Trend</h3>
+        </div>
+        <ProgressChart data={recentProgress} type="area" height={250} />
       </div>
       
       <div className="grid grid-2">
